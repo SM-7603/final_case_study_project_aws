@@ -1,0 +1,15 @@
+# Python dependencies
+*.pyc
+__pycache__/
+*.pyo
+*.pyd
+*.egg-info/
+
+# AWS Lambda zip packages
+*.zip
+
+# Local files and configs
+*.json
+
+# CLI Commands used 
+/cli-commands
