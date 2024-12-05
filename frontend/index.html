@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory Management</title>
+</head>
+<body>
+    <h1>Inventory Management</h1>
+    <div>
+        <button onclick="getInventory()">Get Inventory</button>
+        <pre id="output"></pre>
+    </div>
+
+    <script>
+        const apiBaseUrl = "https://rteditzv5i.execute-api.us-east-1.amazonaws.com/dev";
+
+        async function getInventory() {
+            const response = await fetch(`${apiBaseUrl}/inventory`);
+            const data = await response.json();
+            document.getElementById("output").textContent = JSON.stringify(data, null, 2);
+        }
+    </script>
+</body>
+</html>
