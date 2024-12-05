@@ -4,12 +4,112 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inventory Management</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 0;
+        }
+        h1 {
+            color: #333;
+        }
+        button {
+            margin: 5px;
+            padding: 10px;
+            border: none;
+            background-color: #007BFF;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        input, textarea {
+            padding: 8px;
+            margin: 5px 0;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        #output {
+            white-space: pre-wrap;
+            background: #f4f4f4;
+            padding: 10px;
+            border: 1px solid #ddd;
+            overflow-x: auto;
+        }
+    </style>
 </head>
 <body>
     <h1>Inventory Management</h1>
+
+    <!-- Get Inventory Section -->
     <div>
+        <h3>View Inventory</h3>
         <button onclick="getInventory()">Get Inventory</button>
         <pre id="output"></pre>
+    </div>
+
+    <!-- Add Item Section -->
+    <div>
+        <h3>Add Item</h3>
+        <form id="addItemForm" onsubmit="addItem(event)">
+            <div class="form-group">
+                <label for="addName">Name</label>
+                <input type="text" id="addName" required>
+            </div>
+            <div class="form-group">
+                <label for="addType">Type</label>
+                <input type="text" id="addType" required>
+            </div>
+            <div class="form-group">
+                <label for="addPrice">Price</label>
+                <input type="number" id="addPrice" required>
+            </div>
+            <div class="form-group">
+                <label for="addStock">Stock</label>
+                <input type="number" id="addStock" required>
+            </div>
+            <button type="submit">Add Item</button>
+        </form>
+    </div>
+
+    <!-- Update Item Section -->
+    <div>
+        <h3>Update Item</h3>
+        <form id="updateItemForm" onsubmit="updateItem(event)">
+            <div class="form-group">
+                <label for="updateId">Item ID</label>
+                <input type="text" id="updateId" required>
+            </div>
+            <div class="form-group">
+                <label for="updateName">Name</label>
+                <input type="text" id="updateName">
+            </div>
+            <div class="form-group">
+                <label for="updatePrice">Price</label>
+                <input type="number" id="updatePrice">
+            </div>
+            <div class="form-group">
+                <label for="updateStock">Stock</label>
+                <input type="number" id="updateStock">
+            </div>
+            <button type="submit">Update Item</button>
+        </form>
+    </div>
+
+    <!-- Delete Item Section -->
+    <div>
+        <h3>Delete Item</h3>
+        <form id="deleteItemForm" onsubmit="deleteItem(event)">
+            <div class="form-group">
+                <label for="deleteId">Item ID</label>
+                <input type="text" id="deleteId" required>
+            </div>
+            <button type="submit">Delete Item</button>
+        </form>
     </div>
 
     <script>
@@ -19,6 +119,57 @@
             const response = await fetch(`${apiBaseUrl}/inventory`);
             const data = await response.json();
             document.getElementById("output").textContent = JSON.stringify(data, null, 2);
+        }
+
+        async function addItem(event) {
+            event.preventDefault();
+            const name = document.getElementById("addName").value;
+            const type = document.getElementById("addType").value;
+            const price = parseFloat(document.getElementById("addPrice").value);
+            const stock = parseInt(document.getElementById("addStock").value);
+
+            const response = await fetch(`${apiBaseUrl}/inventory`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name, type, price, stock })
+            });
+
+            const result = await response.json();
+            alert(result.message || "Item added successfully!");
+            getInventory();
+        }
+
+        async function updateItem(event) {
+            event.preventDefault();
+            const id = document.getElementById("updateId").value;
+            const name = document.getElementById("updateName").value || undefined;
+            const price = document.getElementById("updatePrice").value || undefined;
+            const stock = document.getElementById("updateStock").value || undefined;
+
+            const body = { ...(name && { name }), ...(price && { price: parseFloat(price) }), ...(stock && { stock: parseInt(stock) }) };
+
+            const response = await fetch(`${apiBaseUrl}/inventory/${id}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(body)
+            });
+
+            const result = await response.json();
+            alert(result.message || "Item updated successfully!");
+            getInventory();
+        }
+
+        async function deleteItem(event) {
+            event.preventDefault();
+            const id = document.getElementById("deleteId").value;
+
+            const response = await fetch(`${apiBaseUrl}/inventory/${id}`, {
+                method: "DELETE"
+            });
+
+            const result = await response.json();
+            alert(result.message || "Item deleted successfully!");
+            getInventory();
         }
     </script>
 </body>
