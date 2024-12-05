@@ -15,6 +15,9 @@ def lambda_handler(event, context):
 
         return {
             'statusCode': 200,
+                'headers': {
+                'Access-Control-Allow-Origin': '*',  # Allows all origins
+            },
             'body': json.dumps({'message': f'Item with id {item_id} deleted successfully'})
         }
 

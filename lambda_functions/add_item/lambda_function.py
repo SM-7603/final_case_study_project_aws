@@ -16,5 +16,8 @@ def lambda_handler(event, context):
 
     return {
         'statusCode': 201,
+        'headers': {
+            'Access-Control-Allow-Origin': '*',  # Allows all origins
+        },
         'body': json.dumps({'message': 'Item added successfully', 'item': data})
     }

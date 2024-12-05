@@ -21,5 +21,8 @@ def lambda_handler(event, context):
     # Return the items as JSON, using the custom DecimalEncoder
     return {
         'statusCode': 200,
+        'headers': {
+            'Access-Control-Allow-Origin': '*',  # Allows all origins
+        },
         'body': json.dumps({'items': items}, cls=DecimalEncoder)
     }
