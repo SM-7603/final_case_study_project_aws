@@ -6,28 +6,30 @@ from decimal import Decimal
 dynamodb = boto3.resource('dynamodb')
 table = dynamodb.Table('Inventory')
 
-# Custom JSON serializer for Decimal types
+# Custom JSON encoder for Decimal types
 class DecimalEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, Decimal):
-            return float(obj)
+            return float(obj)  # Convert Decimal to float
         return super(DecimalEncoder, self).default(obj)
 
 def lambda_handler(event, context):
     try:
-        # Parse the request body
-        data = json.loads(event['body'])
-        item_id = data['id']  # Expecting the item ID in the body
+        # Extract the 'id' from pathParameters
+        item_id = event['pathParameters']['id']
 
-        # Create the update expression dynamically
+        # Parse the request body
+        body = json.loads(event['body'])
+
+        # Dynamically create the update expression
         update_expression = "SET "
         expression_attribute_names = {}
         expression_attribute_values = {}
-        for key, value in data.items():
-            if key != "id":  # Don't update the ID
-                update_expression += f"#attr_{key} = :val_{key}, "
-                expression_attribute_names[f"#attr_{key}"] = key
-                expression_attribute_values[f":val_{key}"] = value
+        for key, value in body.items():
+            update_expression += f"#attr_{key} = :val_{key}, "
+            expression_attribute_names[f"#attr_{key}"] = key
+            expression_attribute_values[f":val_{key}"] = value
+
         update_expression = update_expression.rstrip(", ")  # Remove trailing comma
 
         # Update the item in DynamoDB
@@ -44,10 +46,11 @@ def lambda_handler(event, context):
             'body': json.dumps({
                 'message': 'Item updated successfully',
                 'updatedAttributes': response.get('Attributes', {})
-            }, cls=DecimalEncoder)
+            }, cls=DecimalEncoder)  # Use the custom encoder
         }
 
     except Exception as e:
+        print("Error:", str(e))  # Log the error for debugging
         return {
             'statusCode': 400,
             'body': json.dumps({'error': str(e)})
